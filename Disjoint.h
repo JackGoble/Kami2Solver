@@ -4,6 +4,7 @@
 #include <iostream>
 #include <set>
 #include <vector>
+#include <string.h>
 
 using std::endl;
 using std::cin;
@@ -135,40 +136,44 @@ public:
 	}
 
 	int* getColorLayout() const
-	{return color_Layout;}
-
-	vector <int> getBlobs()
 	{
-		vector <int> parentIndexes;
-		std::vector <int>::iterator it;
+		int * rv = new int[290];
+		memcpy(rv, color_Layout, 290);
+		return rv;
+	}
+
+	vector<int> getBlobs() const
+	{
+		vector<int> parentIndexes;
+		std::vector<int>::iterator it;
 
 		for (int i = 0; i < 290; i++)
 		{
-			if (board[i].parent = -1 && board[i].color != 0)
+			if (board[i].parent == -1 && board[i].color != 0)
 				parentIndexes.insert(it,i);
 		}
 	}
 
-	int getColor(int id)
+	int getColor(int id) const
 	{
-		Blob* bptr = &board[id];
+		int bptr = id;
 
-		while (bptr->parent != -1)
-			bptr = &board[bptr->parent];
+		while (board[bptr].parent != -1)
+			bptr = board[bptr].parent;
 
-		return bptr->color;
+		return board[bptr].color;
 	}
 
-	int getGCost()
+	int getGCost() const
 	{return gCost;}
 
-	int getHCost()
+	int getHCost() const
 	{return hCost;}
 
 	void setHCost(int h)
 	{hCost = h;}
 
-	int getNodeID()
+	int getNodeID() const
 	{return nodeid;}
 
 	Node* getParent()

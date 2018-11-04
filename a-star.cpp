@@ -45,7 +45,7 @@ struct closedComp {
 //in the set (higher priority)
 struct openComp {
     bool operator() (const Node& lhs, const Node& rhs) const {
-        if(lhs.getGCost()+lhs.getHCost() == rhs.getGcost()+rhs.getHcost()) return lhs.getNodeID() < rhs.getNodeID();
+        if(lhs.getGCost()+lhs.getHCost() == rhs.getGCost()+rhs.getHCost()) return lhs.getNodeID() < rhs.getNodeID();
         return lhs.getGCost()+lhs.getHCost() < rhs.getGCost()+rhs.getHCost();
     }
 }; 
@@ -70,20 +70,20 @@ class AST {
         unsigned int N; //max (N)umber of nodes in memory at once
         float b;        //approximate effective (b)ranching factor N=b^d
 
-        void expand(const Node&); //expands a node into a max of 4 new nodes
+        void expand(Node); //expands a node into a max of 4 new nodes
 };
 
 //constructor for A* Tree takes the problem (B)oard and a pointer to
 //which heuristic to use
 AST::AST(int B[board_size], int(*func)(const Node&), int nc) {
     hf = func;
-    root = new Node;
+    root = new Node(B, 0, 0, 0);
     next_id = 1;
     N = 0;
     num_colors = nc;
    
     //set all appropriate values for the root node (the problem state)
-    for(int i = 0; i < board_height; i++) {
+    /*for(int i = 0; i < board_height; i++) {
         for(int j = 0; j < board_width; j++) {
             int index = i*board_width+j;
             root->b[index] = B[index];
@@ -92,9 +92,9 @@ AST::AST(int B[board_size], int(*func)(const Node&), int nc) {
                 root->c0 = j;
             }
         }
-    }
-    root->h = hf(*root);
-    root->parent = NULL;
+    }*/
+    root->setHCost(hf(*root));
+    root->setParent(NULL);
 
     //and instert it into the open list
     OPEN.insert(*root);
@@ -102,7 +102,7 @@ AST::AST(int B[board_size], int(*func)(const Node&), int nc) {
     V = 1;
 }
 
-void AST::expand(const Node& node) {
+void AST::expand(Node node) {
     vector<int> blobs = node.getBlobs();
     for(int i = 0; i < blobs.size(); i++) {
         for(int color = 1; color < num_colors; color++) {
@@ -110,7 +110,7 @@ void AST::expand(const Node& node) {
                 Node *tmp = new Node(node.getColorLayout(), node.getGCost()+1, 0, next_id++);
                 tmp->color(i, color);
                 tmp->setHCost(hf(*tmp));
-                tmp->setParent(node);
+                tmp->setParent(&node);
                 OPEN.insert(*tmp);
                 delete tmp;
                 tmp = NULL;
@@ -171,12 +171,12 @@ void AST::solve() {
 */
 
     //print out path in reverse order
-    const Node* path = &(*sit);
+    /*const Node* path = &(*sit);
     vector<Node> r_path;
 
     while(path != NULL) {
         r_path.push_back(*path);
-        path = path->parent;
+        path = path->getParent();
     }
 
     for(int f = d; f >= 0; f--) {
@@ -188,7 +188,7 @@ void AST::solve() {
             }
         }
         cout << endl;
-    }
+    }*/
     return;
 }
 
