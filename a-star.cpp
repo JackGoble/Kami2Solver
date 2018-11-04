@@ -52,7 +52,7 @@ struct openComp {
 //A* Tree class
 class AST {
     public:
-        AST(int[board_size ] , int(*)(const Node&));
+        AST(int[board_size] , int(*)(const Node&), int);
         void solve();
 
     private:
@@ -63,6 +63,7 @@ class AST {
         set<Node,closedComp> CLOSED;
 
         int next_id;    //next unique node id to give out
+        int num_colors; //number of colors in this puzzle
         int V, d;       //number of nodes (V)isited and (d)epth
         unsigned int N; //max (N)umber of nodes in memory at once
         float b;        //approximate effective (b)ranching factor N=b^d
@@ -72,11 +73,12 @@ class AST {
 
 //constructor for A* Tree takes the problem (B)oard and a pointer to
 //which heuristic to use
-AST::AST(int B[board_size], int(*func)(const Node&)) {
+AST::AST(int B[board_size], int(*func)(const Node&), int nc) {
     hf = func;
     root = new Node;
     next_id = 1;
     N = 0;
+    num_colors = nc;
    
     //set all appropriate values for the root node (the problem state)
     for(int i = 0; i < board_height; i++) {
@@ -99,7 +101,12 @@ AST::AST(int B[board_size], int(*func)(const Node&)) {
 }
 
 void AST::expand(const Node& node) {
-    Node *tmp = new Node;
+    for(int i = 0; i < 290; i++) {
+        for(int color = 1; color < 5; color++) {
+            
+        }
+    }    
+        Node *tmp = new Node;
     if(node.r0 > 0) { //if space can move up
         *tmp = node;
         tmp->id = next_id++;
@@ -107,7 +114,7 @@ void AST::expand(const Node& node) {
         tmp->b[node.r0*board_width+node.c0] = 
                 tmp->b[(node.r0-1)*board_width+node.c0];
         tmp->b[(node.r0-1)*board_width+node.c0] = 0;
-        tmp->r0 = node.r0 - 1;
+        tmp->r0 = node.r0 - 1; 
         tmp->h = hf(*tmp);
         tmp->parent = &node;
         OPEN.insert(*tmp);
