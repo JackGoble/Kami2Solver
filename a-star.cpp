@@ -1,25 +1,14 @@
 /*
-Name: Jackson Goble
-Class: CSCI4350
-Assignment: OLA1
-Due date: 10/2/2018
+Authors: Jackson Goble, Paul Fleming, Robbie Bird
+Event: Vandy Hacks V
+Date: 11/3/2018 - 11/4/2018
 
-Description: This program is used in conjuntion with the output from
-    random_board to solve the 8-puzzle problem using A* with 4 
-    different heuristic functions.
+Description: 
 
 Usage 1 (this program only)
     : make
     : ./a-star heuristic
 
-Usage 2 (this program from a random board)
-    : make
-    : cat OLA1-input.txt | ./random_board seed moves | ./a-star heuristic
-
-Usage 3 (this program 100 times for each of the 4 heuristics, writing
-         the output to files stored in the /outfiles directory)
-    : make
-    : ./dataget
 */
 
 #include <iostream>
@@ -36,26 +25,17 @@ using std::set;
 
 //the following constants are available to run the a-star algorithm
 //on different sized puzzles.
-static const int board_height = 4;
-static const int board_width = 4;
+static const int board_height = 29;
+static const int board_width = 10;
 static const int board_size = board_width*board_height;
 static const int solution[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
-
-struct Node {
-    int id;   //id is unique to each node upon creation
-    int g, h; //step cost is 1, so g is essentially the depth
-    int b[board_size];
-    int r0, c0;
-
-    const Node * parent;
-};
 
 //comparison class for the closed list, considers two nodes
 //to be the same if their b[] (board states) are equal
 struct closedComp {
     bool operator() (const Node& lhs, const Node& rhs) const {
-        return std::lexicographical_compare(lhs.b, lhs.b+board_size-1, 
-                                            rhs.b, rhs.b+board_size-1);
+        return std::lexicographical_compare(lhs.getColorLayout(), lhs.getColorLayout()+board_size-1, 
+                                            rhs.getColorLayout(), rhs.getColorLayout()+board_size-1);
     }
 };
 
@@ -67,12 +47,12 @@ struct openComp {
         if(lhs.g+lhs.h == rhs.g+rhs.h) return lhs.id < rhs.id;
         return lhs.g+lhs.h < rhs.g+rhs.h;
     }
-};
+}; 
 
 //A* Tree class
 class AST {
     public:
-        AST(int[board_size], int(*)(const Node&));
+        AST(int[board_size ] , int(*)(const Node&));
         void solve();
 
     private:
@@ -151,7 +131,7 @@ void AST::expand(const Node& node) {
         tmp->b[node.r0*board_width+node.c0] = 
                 tmp->b[node.r0*board_width+node.c0-1];
         tmp->b[node.r0*board_width+node.c0-1] = 0;
-        tmp->c0 = node.c0 - 1;
+        tmp->c0  = node.c0 - 1;
         tmp->h = hf(*tmp);
         tmp->parent = &node;
         OPEN.insert(*tmp);
@@ -245,38 +225,6 @@ int h1(const Node& node) {
         for(int j = 0; j < board_width; j++) {
             if(node.b[i*board_width+j] != 0 && 
                 node.b[i*board_width+j] != i*board_width+j ) h_val++;
-        }
-    }
-    return h_val;
-}
-
-//h = sum of Manhattan square distances
-int h2(const Node& node) {
-    int h_val = 0;
-    for(int i = 0; i < board_height; i++) {
-        for(int j = 0; j < board_width; j++) {
-            int val = node.b[i*board_width+j];
-            if(val != 0)  {
-                h_val += abs( (val / board_width) - i);
-                h_val += abs( (val % board_width) - j);
-            }
-        }
-    }
-
-    return h_val;
-}
-
-//h = sum of number of tiles in wrong row plus number 
-//of tiles in wrong column (should fall between h1 and h2)
-int h3(const Node& node) {
-    int h_val = 0;
-    for(int i = 0; i < board_height; i++) {
-        for(int j = 0; j < board_width; j++) {
-            int val = node.b[i*board_width+j];
-            if(val != 0)  {
-                h_val += (val / board_width) != i;
-                h_val += (val % board_width) != j;
-            }
         }
     }
     return h_val;
