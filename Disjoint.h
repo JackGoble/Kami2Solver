@@ -38,9 +38,42 @@ private:
 	int gCost;//cost so far to get to current board state
 	int hCost;//heuristic cost
 	int nodeid;//id for a node
+	Node* parent = nullptr;
 
 
 public:
+
+	Node(int given_board[], int g, int h, int nid)//constructor
+	{
+		gCost = g;
+		hCost = h;
+		nodeid = nid;
+
+		for (int i = 0; i < 290; i++)
+		{
+			board[i].id = i;
+			board[i].color = given_board[i];
+			board[i].size = 1;
+
+			if (i > 9)
+				board[i].adjacencyList.insert(i - 10);
+			if(i < 280)
+				board[i].adjacencyList.insert(i + 10);
+			if(((i % 2 == 0) ^ (i / 10) % 2 == 0) && (i % 10 != 9))
+				board[i].adjacencyList.insert(i + 1);
+			else if (i % 10 != 0)
+				board[i].adjacencyList.insert(i - 1);
+		}
+
+		for(int i = 0; i < 290; i++)
+		{
+			for (std::set<int>::iterator it = board[i].adjacencyList.begin(); it != board[i].adjacencyList.end(); it++)
+				merge(board[i], board[*it]);
+		}
+
+		for (int i = 0; i < 290; i++)
+			color_Layout[i] = getColor(i);
+	}
 
 	/*
 	The color function changes the color of a blob and all adjacent blobs of the same color to one color.
@@ -58,38 +91,9 @@ public:
 		bptr->color = color_choice;
 
 		for (std::set<int>::iterator it = bptr->adjacencyList.begin(); it != bptr->adjacencyList.end(); it++)
-			merge(*bptr, board[*it]);
+			merge(board[bptr->id], board[*it]);
 
 	}
-
-	Node(int given_board[], int g, int h, int nid)//constructor
-	{
-		gCost = g;
-		hCost = h;
-		nodeid = nid;
-
-		for (int i = 0; i < 290; i++)
-		{
-			board[i].id = i;
-			board[i].color = given_board[i];
-			color_Layout[i] = given_board[i];
-			board[i].size = 1;
-
-			if (i > 9)
-				board[i].adjacencyList.insert(i - 10);
-			if(i < 280)
-				board[i].adjacencyList.insert(i + 10);
-			if(((i % 2 == 0) ^ (i / 10) % 2 == 0) && (i % 10 != 9))
-				board[i].adjacencyList.insert(i + 1);
-			else if (i % 10 != 0)
-				board[i].adjacencyList.insert(i - 1);
-		}
-
-		std::cout << "node 0 adj: ";
-			for (std::set<int>::iterator it = board[0].adjacencyList.begin(); it != board[0].adjacencyList.end(); it++)
-				std::cout << *it << " ";
-	}
-
 
 	//use lowest id when 
 	void merge(Blob blob1, Blob blob2)//merge two adjacent colors together
@@ -99,9 +103,14 @@ public:
 		bptr1 = &blob1;
 		bptr2 = &blob2;
 
+		std::cout << "merge was passed " << blob1.id << " and " << blob2.id << std::endl;
+		std::cout << "blob1's color " << blob1.color << " and blob2's color " << blob2.color << std::endl;
+
 		//if they are not the same color, exit early since a merge cannot happen
 		if (blob1.color != blob2.color)
 			return;
+
+		std::cout << "early exit did not happend" << std::endl;
 
 		//blob1 follow parents till master parent is found
 		while (bptr1->parent != -1)
@@ -128,14 +137,14 @@ public:
 	int* getColorLayout()
 	{return color_Layout;}
 
-	vector <int> getParents()
+	vector <int> getBlobs()
 	{
 		vector <int> parentIndexes;
 		std::vector <int>::iterator it;
 
 		for (int i = 0; i < 290; i++)
 		{
-			if (board[i].parent = -1)
+			if (board[i].parent = -1 && board[i].color != 0)
 				parentIndexes.insert(it,i);
 		}
 	}
@@ -156,8 +165,18 @@ public:
 	int getHCost()
 	{return hCost;}
 
+	void setHCost(int h)
+	{hCost = h;}
+
 	int getNodeID()
 	{return nodeid;}
+
+	Node* getParent()
+	{return parent;}
+
+	void setParent(Node* nptr)
+	{parent = nptr;}
+
 };
 
 #endif
