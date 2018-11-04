@@ -107,8 +107,8 @@ public:
 		std::cout << "blob1's color " << blob1.color << " and blob2's color " << blob2.color << std::endl;
 
 		//if they are not the same color, exit early since a merge cannot happen
-		if (blob1.color != blob2.color)
-			return;
+		//if (blob1.color != blob2.color)
+			//return;
 
 		std::cout << "early exit did not happend" << std::endl;
 
