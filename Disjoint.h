@@ -58,18 +58,18 @@ public:
 
 			if (i > 9)
 				board[i].adjacencyList.insert(i - 10);
-			if(i < 280)
+			if (i < 280)
 				board[i].adjacencyList.insert(i + 10);
-			if(((i % 2 == 0) ^ (i / 10) % 2 == 0) && (i % 10 != 9))
+			if (((i % 2 == 0) ^ (i / 10) % 2 == 0) && (i % 10 != 9))
 				board[i].adjacencyList.insert(i + 1);
-			else if (i % 10 != 0)
+			if (!((i % 2 == 0) ^ (i / 10) % 2 == 0) && (i % 10 != 0))
 				board[i].adjacencyList.insert(i - 1);
 		}
 
 		for(int i = 0; i < 290; i++)
 		{
 			for (std::set<int>::iterator it = board[i].adjacencyList.begin(); it != board[i].adjacencyList.end(); it++)
-				merge(board[i], board[*it]);
+				merge(i, *it);
 		}
 
 		for (int i = 0; i < 290; i++)
@@ -84,54 +84,44 @@ public:
 	*/
 	void color(int id, int color_choice)//changes the color of a blob
 	{
-		Blob *bptr = &board[id];
 
-		while (bptr->parent != -1)//find the parent
-			bptr = &board[bptr->parent];
+		int bptr = id;
 
-		bptr->color = color_choice;
+		while (board[bptr].parent != -1)//find the parent
+			bptr = board[bptr].parent;
 
-		for (std::set<int>::iterator it = bptr->adjacencyList.begin(); it != bptr->adjacencyList.end(); it++)
-			merge(board[bptr->id], board[*it]);
+		board[bptr].color = color_choice;
+
+		for (std::set<int>::iterator it = board[bptr].adjacencyList.begin(); it != board[bptr].adjacencyList.end(); it++)
+			merge(bptr, *it);
 
 	}
 
 	//use lowest id when 
-	void merge(Blob blob1, Blob blob2)//merge two adjacent colors together
+
+	void merge(int blob1, int blob2)//merge two adjacent colors together
 	{
-		Blob *bptr1, *bptr2;
-
-		bptr1 = &blob1;
-		bptr2 = &blob2;
-
-		std::cout << "merge was passed " << blob1.id << " and " << blob2.id << std::endl;
-		std::cout << "blob1's color " << blob1.color << " and blob2's color " << blob2.color << std::endl;
-
-		//if they are not the same color, exit early since a merge cannot happen
-		//if (blob1.color != blob2.color)
-			//return;
-
-		std::cout << "early exit did not happend" << std::endl;
 
 		//blob1 follow parents till master parent is found
-		while (bptr1->parent != -1)
-			bptr1 = &board[bptr1->parent];
+		while (board[blob1].parent != -1)
+			blob1 = board[blob1].parent;
 
 		//blob2 follow parents till master parent is found
-		while (bptr2->parent != -1)
-			bptr2 = &board[bptr2->parent];
+		while (board[blob2].parent != -1)
+			blob2 = board[blob2].parent;
 
 		//compare parent sizes and attach the smaller to the larger
-		if (bptr1->size > bptr2->size)
+		if (board[blob1].size > board[blob2].size)
 		{
-			bptr2->parent = bptr1->id;
-			bptr1->size += bptr2->size;
+			board[blob2].parent = blob1;
+			board[blob1].size += board[blob2].size;
 		}
 		else
 		{
-			bptr1->parent = bptr2->id;
-			bptr2->size += bptr1->size;
+			board[blob1].parent = blob2;
+			board[blob2].size += board[blob1].size;
 		}
+		//put in logic to edit the adjacency list of the resulting blob****************** 
 
 	}
 
@@ -145,13 +135,15 @@ public:
 	vector<int> getBlobs() const
 	{
 		vector<int> parentIndexes;
-		std::vector<int>::iterator it;
+		//std::vector<int>::iterator it;
 
 		for (int i = 0; i < 290; i++)
 		{
 			if (board[i].parent == -1 && board[i].color != 0)
-				parentIndexes.insert(it,i);
+				parentIndexes.push_back(i);
 		}
+
+		return parentIndexes;
 	}
 
 	int getColor(int id) const
