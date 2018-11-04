@@ -3,11 +3,13 @@
 
 #include <iostream>
 #include <set>
+#include <vector>
 
 using std::endl;
 using std::cin;
 using std::cout;
 using std::set;
+using std::vector;
 
 
 /*
@@ -40,20 +42,15 @@ private:
 
 public:
 
-	Blob getBlob(int id)
-	{
-		return board[id];
-	}
-
 	/*
 	The color function changes the color of a blob and all adjacent blobs of the same color to one color.
 	Merging happens when all adjacent blobs of the same color changes to the chosen color.
 
 	merging when you color a blob a different if no merges happen do not
 	*/
-	void color(Blob blob, int color_choice)//changes the color of a blob
+	void color(int id, int color_choice)//changes the color of a blob
 	{
-		Blob *bptr = &blob;
+		Blob *bptr = &board[id];
 
 		while (bptr->parent != -1)//find the parent
 			bptr = &board[bptr->parent];
@@ -62,6 +59,7 @@ public:
 
 		for (std::set<int>::iterator it = bptr->adjacencyList.begin(); it != bptr->adjacencyList.end(); it++)
 			merge(*bptr, board[*it]);
+
 	}
 
 	Node(int given_board[], int g, int h, int nid)//constructor
@@ -78,14 +76,18 @@ public:
 			board[i].size = 1;
 
 			if (i > 9)
-				board[i].adjacencyList.insert(i + 10);
-			if(i < 280)
 				board[i].adjacencyList.insert(i - 10);
+			if(i < 280)
+				board[i].adjacencyList.insert(i + 10);
 			if(((i % 2 == 0) ^ (i / 10) % 2 == 0) && (i % 10 != 9))
 				board[i].adjacencyList.insert(i + 1);
 			else if (i % 10 != 0)
 				board[i].adjacencyList.insert(i - 1);
 		}
+
+		std::cout << "node 0 adj: ";
+			for (std::set<int>::iterator it = board[0].adjacencyList.begin(); it != board[0].adjacencyList.end(); it++)
+				std::cout << *it << " ";
 	}
 
 
@@ -124,16 +126,32 @@ public:
 	}
 
 	int* getColorLayout()
-	{
-		//int* ptr = new int[290];
-		//ptr = color_Layout;
+	{return color_Layout;}
 
-		return color_Layout;
+	vector <int> getParents()
+	{
+		vector <int> parentIndexes;
+		std::vector <int>::iterator it;
+
+		for (int i = 0; i < 290; i++)
+		{
+			if (board[i].parent = -1)
+				parentIndexes.insert(it,i);
+		}
+	}
+
+	int getColor(int id)
+	{
+		Blob* bptr = &board[id];
+
+		while (bptr->parent != -1)
+			bptr = &board[bptr->parent];
+
+		return bptr->color;
 	}
 
 	int getGCost()
 	{return gCost;}
-
 
 	int getHCost()
 	{return hCost;}
