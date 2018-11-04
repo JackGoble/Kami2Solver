@@ -88,6 +88,7 @@ print(cells)
 
 #write to file
 outfile = open("kami.txt","w+")
+outfile.write(str(numColors) + "\n")
 for h in xrange(0, 29):
     for w in xrange(0, 10):
         outfile.write(str(cells[h][w]) + " ")
