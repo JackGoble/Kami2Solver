@@ -16,6 +16,7 @@ Usage 1 (this program only)
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include "Disjoint.h"
 
 using std::endl;
 using std::cin;

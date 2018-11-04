@@ -134,7 +134,7 @@ public:
 
 	}
 
-	int* getColorLayout()
+	int* getColorLayout() const
 	{return color_Layout;}
 
 	vector <int> getBlobs()
